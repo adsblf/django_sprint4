@@ -13,9 +13,7 @@ NUMBER_OF_PAGINATOR_PAGES = 10
 
 
 def get_posts(**kwargs):
-    """
-    Отфильтрованное получение постов.
-    """
+    """Отфильтрованное получение постов"""
     return Post.objects.select_related(
         'category',
         'location',
@@ -28,7 +26,7 @@ def get_paginator(request, queryset,
                   number_of_pages=NUMBER_OF_PAGINATOR_PAGES):
     """
     Представление queryset в виде пагинатора,
-    по N-шт на странице.
+       по N-шт на странице
     """
     paginator = Paginator(queryset, number_of_pages)
     page_number = request.GET.get('page')
@@ -36,9 +34,7 @@ def get_paginator(request, queryset,
 
 
 def index(request):
-    """
-    Главная страница / Лента публикаций.
-    """
+    """Главная страница / Лента публикаций"""
     posts = get_posts(
         is_published=True,
         category__is_published=True,
@@ -49,9 +45,7 @@ def index(request):
 
 
 def category_posts(request, category_slug):
-    """
-    Отображение публикаций в категории.
-    """
+    """Отображение публикаций в категории"""
     category = get_object_or_404(
         Category,
         slug=category_slug,
@@ -62,17 +56,13 @@ def category_posts(request, category_slug):
         pub_date__lte=datetime.now(),
         category=category)
     page_obj = get_paginator(request, posts)
-    context = {
-        'category': category,
-        'page_obj': page_obj
-    }
+    context = {'category': category,
+               'page_obj': page_obj}
     return render(request, 'blog/post_list.html', context)
 
 
 def post_detail(request, post_id):
-    """
-    Отображение полного описания выбранной публикации.
-    """
+    """Отображение полного описания выбранной публикации"""
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
         post = get_object_or_404(
@@ -84,19 +74,15 @@ def post_detail(request, post_id):
     form = CommentForm(request.POST or None)
     comments = Comment.objects.select_related(
         'author').filter(post=post)
-    context = {
-        'post': post,
-        'form': form,
-        'comments': comments
-    }
+    context = {'post': post,
+               'form': form,
+               'comments': comments}
     return render(request, 'blog/post_detail.html', context)
 
 
 @login_required
 def create_post(request):
-    """
-    Создание публикации.
-    """
+    """Создание публикации"""
     form = PostForm(request.POST or None, files=request.FILES or None)
     if form.is_valid():
         post = form.save(commit=False)
@@ -109,9 +95,7 @@ def create_post(request):
 
 @login_required
 def edit_post(request, post_id):
-    """
-    Редактирование публикации.
-    """
+    """Редактирование публикации"""
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
         return redirect('blog:post_detail', post_id)
@@ -125,9 +109,7 @@ def edit_post(request, post_id):
 
 @login_required
 def delete_post(request, post_id):
-    """
-    Удаление публикации.
-    """
+    """Удаление публикации"""
     post = get_object_or_404(Post, id=post_id)
     if request.user != post.author:
         return redirect('blog:post_detail', post_id)
@@ -141,9 +123,7 @@ def delete_post(request, post_id):
 
 @login_required
 def add_comment(request, post_id):
-    """
-    Добавление комментария к публикации.
-    """
+    """Добавление комментария к публикации"""
     post = get_object_or_404(Post, id=post_id)
     form = CommentForm(request.POST or None)
     if form.is_valid():
@@ -156,9 +136,7 @@ def add_comment(request, post_id):
 
 @login_required
 def edit_comment(request, post_id, comment_id):
-    """
-    Редактирование комментария к публикации.
-    """
+    """Редактирование комментария к публикации"""
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user != comment.author:
         return redirect('blog:post_detail', post_id)
@@ -166,18 +144,14 @@ def edit_comment(request, post_id, comment_id):
     if form.is_valid():
         form.save()
         return redirect('blog:post_detail', post_id)
-    context = {
-        'comment': comment,
-        'form': form
-    }
+    context = {'comment': comment,
+               'form': form}
     return render(request, 'blog/comment.html', context)
 
 
 @login_required
 def delete_comment(request, post_id, comment_id):
-    """
-    Удаление комментария к публикации.
-    """
+    """Удаление комментария к публикации"""
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user != comment.author:
         return redirect('blog:post_detail', post_id)
@@ -189,9 +163,7 @@ def delete_comment(request, post_id, comment_id):
 
 
 def profile(request, username):
-    """
-    Отображение страницы пользователя.
-    """
+    """Отображение страницы пользователя"""
     profile = get_object_or_404(
         User,
         username=username)
@@ -203,18 +175,14 @@ def profile(request, username):
             pub_date__lte=datetime.now(),
             author=profile)
     page_obj = get_paginator(request, posts)
-    context = {
-        'profile': profile,
-        'page_obj': page_obj
-    }
+    context = {'profile': profile,
+               'page_obj': page_obj}
     return render(request, 'blog/profile.html', context)
 
 
 @login_required
 def edit_profile(request):
-    """
-    Редактирование страницы пользователя.
-    """
+    """Редактирование страницы пользователя"""
     profile = get_object_or_404(
         User,
         username=request.user)
