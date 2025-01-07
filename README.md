@@ -15,6 +15,8 @@
 * Создать и запустить виртуальное окружение:
         ```
         python -m venv venv
+        ```
+        ```
         .\venv\Scripts\activate
         ```
 * Установить зависимости из файла requirements.txt:
